@@ -10,7 +10,7 @@ on:
     inputs:
       mode:
         description: '运行模式'
-        required: true
+        required: false
         default: 'full'
         type: choice
         options:
