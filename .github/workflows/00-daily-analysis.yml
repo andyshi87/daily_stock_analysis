@@ -579,7 +579,7 @@ else:
           if [ -f "$REPORT_FILE" ]; then
             REPORT_TITLE="📊 股票日报 - $(date +%Y-%m-%d)"
             REPORT_DESP=$(head -200 "$REPORT_FILE" | sed 's/$/\n/' | tr -d '\n')
-            REPORT_DESP=$(echo "$REPORT_DESP" | python -c "import sys,urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip()))")
+            REPORT_DESP=$(head -200 "$REPORT_FILE" | python -c "import sys,urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip()))")
           else
             REPORT_TITLE="⚠️ 股票分析失败"
             REPORT_DESP=$(python -c "import urllib.parse; print(urllib.parse.quote('今日分析报告未生成，请查看 GitHub Actions 日志'))")
@@ -587,5 +587,5 @@ else:
           
           # 调用 Server酱 API 推送到微信
           curl -s -o /dev/null -w "HTTP_CODE:%{http_code}\n" \
-            "https://sct.ftqq.com/${{ secrets.SERVERCHAN_KEY }}.send?title=${REPORT_TITLE}&desp=${REPORT_DESP}"
+            "https://sc.ftqq.com/${{ secrets.SERVERCHAN_KEY }}.send?title=${REPORT_TITLE}&desp=${REPORT_DESP}"
           echo "Server酱 推送完成"
