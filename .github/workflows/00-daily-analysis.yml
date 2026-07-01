@@ -570,3 +570,22 @@ if resp.status_code == 201:
 else:
     print(f'Failed to create issue: {resp.status_code} {resp.text}')
 "
+
+      - name: 推送到 Server酱 (微信服务通知)
+        if: always()
+        run: |
+          # 生成简短的报告摘要
+          REPORT_FILE="reports/daily_analysis_report.md"
+          if [ -f "$REPORT_FILE" ]; then
+            REPORT_TITLE="📊 股票日报 - $(date +%Y-%m-%d)"
+            REPORT_DESP=$(head -200 "$REPORT_FILE" | sed 's/$/\n/' | tr -d '\n')
+            REPORT_DESP=$(echo "$REPORT_DESP" | python -c "import sys,urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip()))")
+          else
+            REPORT_TITLE="⚠️ 股票分析失败"
+            REPORT_DESP=$(python -c "import urllib.parse; print(urllib.parse.quote('今日分析报告未生成，请查看 GitHub Actions 日志'))")
+          fi
+          
+          # 调用 Server酱 API 推送到微信
+          curl -s -o /dev/null -w "HTTP_CODE:%{http_code}\n" \
+            "https://sct.ftqq.com/${{ secrets.SERVERCHAN_KEY }}.send?title=${REPORT_TITLE}&desp=${REPORT_DESP}"
+          echo "Server酱 推送完成"
